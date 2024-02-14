@@ -2,6 +2,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BNO055.h>
 #include <utility/imumaths.h>
+#include <PulsePosition.h>
 
 /* Set the delay between fresh samples */
 #define BNO055_SAMPLERATE_DELAY_MS (100)
@@ -9,6 +10,20 @@
 // Check I2C device address and correct line below (by default address is 0x29 or 0x28)
 // id, address
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x28);
+
+//receiver ppm signal setup
+PulsePositionInput receiver_input(RISING);
+float receiver_value[] = {0, 0, 0, 0, 0, 0, 0, 0};
+int channel_number = 0;
+
+void read_receiver(){
+  channel_number = receiver_input.available();
+  if(channel_number > 0){
+    for(int i = 0; i <= channel_number; i++){
+      receiver_value[i-1] = receiver_input.read(i);
+    }
+  }
+}
 
 void displaySensorDetails(void)
 {
@@ -46,6 +61,7 @@ void setup(void)
    
   /* Display some basic information on this sensor */
   displaySensorDetails();
+  receiver_input.begin(14);
 }
 
 void loop(void)
